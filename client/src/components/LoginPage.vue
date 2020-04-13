@@ -39,13 +39,13 @@
             u_email,
             u_pwd
           })
-          .then(() => this.$router.push(`/@${getUser()}`))
+          .then(() => this.$router.push({ name: 'Home', params: { username: getUser() }}))
           .catch(err => console.log(err));
       }
     },
     created() {
       if (this.$store.getters.isLoggedIn) {
-        this.$router.push(`/@${getUser()}`)
+        this.$router.push({ name: 'Home', params: { username: getUser() }})
       }
     }
   };

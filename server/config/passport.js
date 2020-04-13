@@ -1,49 +1,17 @@
-const LocalStrategy = require("passport-local").Strategy;
-var { User } = require('../models');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+var mongoose = require('mongoose');
+var User = mongoose.model('User');
 
-module.exports = function (passport) {
+passport.use(new LocalStrategy({
+  usernameField: 'user[email]',
+  passwordField: 'user[password]'
+}, function(email, password, done) {
+  User.findOne({email: email}).then(function(user){
+    if(!user || !user.validPassword(password)){
+      return done(null, false, {errors: {'email or password': 'is invalid'}});
+    }
 
-    passport.use('local_login', new LocalStrategy({
-        usernameField: 'u_email',
-        passwordField: 'u_pwd',
-        passReqToCallback: true
-    }, async (req, username, password, done) => {
-        if (!username || !password) {
-            return done(null, false, req.flash('message', 'All fields are required.'));
-        }
-
-        const user = await User.findOne({
-            where: {
-                u_email: username
-            }
-        });
-
-        if (!user) {
-            return done(null, false, {
-                error: 'The login information was incorrect'
-            });
-        }
-
-        const isPasswordValid = await user.comparePassword(password)
-        if (!isPasswordValid) {
-            return done(null, false, {
-                error: 'The login information was incorrect'
-            });
-        }
-        return done(null, user.toJSON());
-    }));
-
-    passport.serializeUser(function (user, done) {
-        done(null, user);
-    });
-
-    passport.deserializeUser(async function (user, done) {
-        const _user = await User.findOne({
-            where: {
-                u_email: user.u_email
-            }
-        });
-        done(null, _user);
-    });
-
-}
+    return done(null, user);
+  }).catch(done);
+}));

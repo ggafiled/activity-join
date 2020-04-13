@@ -1,0 +1,15 @@
+logs
+.log
+.DS_Store
+pids
+*.pid
+*.seed
+lib-cov
+.grunt
+.lock-wscript
+build/Release
+node_modules
+.npm
+.node_repl_history
+.idea
+.env
